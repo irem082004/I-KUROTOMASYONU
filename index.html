@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İŞKUR Otomasyonu</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- =========================================================================
+       0. GİRİŞ (LOGIN) EKRANI
+       ========================================================================= -->
+  <section class="login-wrapper" id="loginScreen">
+    <!-- Sol Taraf: Sade Kurumsal Karşılama Alanı -->
+    <div class="login-left">
+      <div class="login-brand-header">
+        <div class="corp-logo-box" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="corp-brand-titles">
+          <span class="corp-system-name">İŞKUR Otomasyonu</span>
+        </div>
+      </div>
+
+      <div class="login-welcome-body">
+        <h1 class="welcome-heading">
+          Kısmi Zamanlı Öğrenci Çalışma ve Yönetim Sistemi
+        </h1>
+        <p class="welcome-desc">
+          Üniversite bünyesinde kısmi zamanlı çalışan öğrencilerin aylık çalışma planlarını, yoklama kayıtlarını, görev atamalarını, mazeret izinlerini ve birim ödenek süreçlerini tek merkezden yönetebilirsiniz.
+        </p>
+      </div>
+
+      <div></div>
+    </div>
+
+    <!-- Sağ Taraf: Koyu/Gri Tonlu Kurumsal Giriş Paneli -->
+    <div class="login-right">
+      <div class="login-form-container">
+        <span class="login-panel-badge">KURUMSAL GİRİŞ PANELİ</span>
+        <div class="login-panel-title">Sisteme Giriş Yapın</div>
+        <div class="login-panel-subtitle">Kurumsal e-posta adresiniz veya öğrenci numaranız ile oturum açın.</div>
+
+        <div class="alert-box" id="loginErrorBox"></div>
+
+        <form id="loginForm">
+          <div class="login-dark-field">
+            <label for="loginIdentifier">E-Posta veya Öğrenci Numarası</label>
+            <input type="text" id="loginIdentifier" placeholder="Örn: 20231011 veya sekreter@universite.edu.tr" required />
+          </div>
+
+          <div class="login-dark-field">
+            <label for="loginPassword">Kurumsal Şifre</label>
+            <input type="password" id="loginPassword" placeholder="••••••" value="123456" required />
+          </div>
+
+          <button type="submit" class="login-submit-btn">Oturum Aç</button>
+        </form>
+
+        <!-- Hızlı Rol Giriş Butonları -->
+        <div class="quick-login-dark">
+          <div class="quick-login-dark-title">Hızlı Kurumsal Rol Girişi (Demo Şifre: 123456)</div>
+          <div class="quick-login-grid">
+            <button type="button" class="quick-role-btn" onclick="quickFillLogin('20231011')">
+              <span class="quick-role-dot"></span> 1. Öğrenci (Ali Veli)
+            </button>
+            <button type="button" class="quick-role-btn" onclick="quickFillLogin('ahmet.yilmaz@universite.edu.tr')">
+              <span class="quick-role-dot"></span> 2. Danışman Öğretmen
+            </button>
+            <button type="button" class="quick-role-btn" onclick="quickFillLogin('bbaskan@universite.edu.tr')">
+              <span class="quick-role-dot"></span> 3. Bölüm Başkanı
+            </button>
+            <button type="button" class="quick-role-btn" onclick="quickFillLogin('sekreter@universite.edu.tr')">
+              <span class="quick-role-dot"></span> 4. Fakülte Sekreteri
+            </button>
+            <button type="button" class="quick-role-btn" style="grid-column: span 2;" onclick="quickFillLogin('dekan@universite.edu.tr')">
+              <span class="quick-role-dot"></span> 5. Dekan (Prof. Dr. Kemal Aydın)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       ANA PANEL DÜZENİ (SOL AÇILIR-KAPANIR MENÜ + ÜST BAR + İÇERİK ALANI)
+       ========================================================================= -->
+  <div class="app-layout" id="appShell" style="display:none;">
+
+    <!-- SOL AÇILIR-KAPANIR SADE GRİ/BEYAZ MENÜ ÇUBUĞU -->
+    <aside class="sidebar" id="appSidebar">
+      <div>
+        <div class="sidebar-top">
+          <div class="sidebar-brand">
+            <div class="sidebar-logo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            <div class="sidebar-brand-text">
+              <span class="sidebar-brand-title">İŞKUR Otomasyonu</span>
+              <span class="sidebar-brand-sub">Selçuk Üniversitesi</span>
+            </div>
+          </div>
+          <button type="button" class="sidebar-collapse-btn" id="btnSidebarCollapse" title="Menüyü Daralt / Genişlet">
+            ☰
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">Menü</div>
+          <!-- Aktif Rolün Menü Öğeleri (Tıklandığında sadece ilgili ekranı sağ tarafa yükler) -->
+          <div id="sidebarRoleModules"></div>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <button type="button" class="nav-item" id="btnSidebarLogout" style="color:var(--danger-text);">
+          <span class="nav-icon">⎋</span>
+          <span class="nav-label">Çıkış Yap</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- SAĞ SÜTUN: ÜST BAŞLIK ÇUBUĞU + İÇERİK ALANI -->
+    <div class="main-column">
+
+      <!-- ÜST KISIM: SİSTEM BAŞLIĞI, TARİH VE SAĞ ÜSTTE KULLANICI PROFİL / AVATARI -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="sidebar-collapse-btn" id="btnTopbarToggle" title="Menüyü Aç/Kapat">☰</button>
+          <div>
+            <div class="topbar-sys-title">İŞKUR Otomasyonu</div>
+            <div class="topbar-breadcrumb">
+              <span id="activeRolePanelTitle">Kullanıcı Paneli</span>
+              <span>›</span>
+              <strong id="activeSubViewTitle" style="color:var(--mustard-hover);">Anasayfa</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date-box">
+            <span id="liveDateDisplay">25 Ekim 2026</span>
+          </div>
+
+          <div class="user-profile-pill">
+            <div class="user-avatar" id="userAvatarInitials">KA</div>
+            <div class="user-meta">
+              <span class="user-name" id="loggedInUserName">Kullanıcı Adı</span>
+              <span class="user-role" id="loggedInUserRole">Rol Ünvanı</span>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" id="btnLogout">Çıkış</button>
+        </div>
+      </header>
+
+      <!-- ANA İÇERİK ALANI -->
+      <main class="workspace-content" id="workspaceTop">
+
+        <!-- KÜRESEL FİLTRE ÇUBUĞU -->
+        <section class="filter-bar" id="globalFilterBar">
+          <div class="filter-group">
+            <div class="field" id="fieldFilterMonth">
+              <label for="filterMonth">Ay</label>
+              <select id="filterMonth">
+                <option value="9">Eylül</option>
+                <option value="10" selected>Ekim</option>
+                <option value="11">Kasım</option>
+                <option value="12">Aralık</option>
+              </select>
+            </div>
+
+            <div class="field" id="fieldFilterYear">
+              <label for="filterYear">Yıl</label>
+              <select id="filterYear">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+              </select>
+            </div>
+
+            <div class="field" id="fieldFilterDepartment">
+              <label for="filterDepartment">Bölüm</label>
+              <select id="filterDepartment">
+                <option value="all">Tüm Bölümler</option>
+              </select>
+            </div>
+
+            <div class="field" id="fieldFilterAdvisor">
+              <label for="filterAdvisor">Danışman</label>
+              <select id="filterAdvisor">
+                <option value="all">Tüm Danışmanlar</option>
+              </select>
+            </div>
+
+            <div class="field" id="fieldFilterSearch">
+              <label for="filterSearch">Ara</label>
+              <input type="text" id="filterSearch" placeholder="Ad, No veya Birim..." />
+            </div>
+
+            <button class="btn btn-secondary" id="btnApplyFilter">Filtrele</button>
+            <button class="btn btn-secondary" id="btnResetFilter">Sıfırla</button>
+          </div>
+
+          <div id="boxAddStudentBtn">
+            <button class="btn" id="btnOpenAddStudent">+ Yeni Öğrenci Ekle</button>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             1. ÖĞRENCİ ROLÜ EKRANLARI
+             ================================================================= -->
+        <section class="role-panel" id="panel-student">
+          <select id="activeStudentSelect" style="display:none;"></select>
+
+          <!-- 1A. Öğrenci: Anasayfa / Genel Bakış -->
+          <div class="sub-view" id="view-student-home">
+            <div class="stats-container-box">
+              <div class="stats-grid">
+                <div class="stat-card highlight">
+                  <div class="stat-label">Toplam Çalışılan Gün</div>
+                  <div class="stat-value" id="stStatWorked">0 Gün</div>
+                  <div class="stat-sub">Onaylı yoklama toplamı</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Bu Ay Planlanan / Çalışılan</div>
+                  <div class="stat-value" id="stStatMonthlyPlan">0 Gün</div>
+                  <div class="stat-sub" id="stStatSalarySub">Tahmini Maaş: 0,00 ₺</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Kullanılan İzin / Yasal Sınır</div>
+                  <div class="stat-value" id="stStatLeave">0 / 10 Gün</div>
+                  <div class="stat-sub">Yasal 10 gün izin sınırı</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Danışman Öğretmen</div>
+                  <div class="stat-value" id="stStatAdvisor" style="font-size:15px;">-</div>
+                  <div class="stat-sub" id="stStatUnit">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Öğrenci Çalışma Bilgileri</div>
+                    <div class="card-subtitle">Kayıtlı birim ve çalışma durumu</div>
+                  </div>
+                </div>
+                <div class="card-inner-white" id="studentHeaderMeta" style="font-size:13.5px; line-height:1.8; color:var(--text-secondary);"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Bölüm Duyuruları</div>
+                    <div class="card-subtitle">Bölüm başkanlığı tarafından yayınlanan bildirimler</div>
+                  </div>
+                </div>
+                <div id="studentAnnouncementsBox" style="display:grid; gap:10px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1B. Öğrenci: Aylık Çalışma Planı Seçimi -->
+          <div class="sub-view" id="view-student-calendar" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Aylık Çalışma Planı Seçimi</div>
+                  <div class="card-subtitle">Çalışacağınız günleri seçip kaydedin (Tam gün ders ve çakışma otomatik kontrol edilir)</div>
+                </div>
+                <button class="btn" id="btnSaveWorkPlan">Çalışma Planını Kaydet</button>
+              </div>
+
+              <div class="alert-box" id="scheduleWarningBox"></div>
+
+              <div class="calendar-legend">
+                <span class="legend-item"><span class="legend-dot" style="background:var(--mustard);"></span> Seçili Plan</span>
+                <span class="legend-item"><span class="legend-dot" style="background:var(--mustard-soft); border-color:var(--mustard);"></span> Çalışıldı</span>
+                <span class="legend-item"><span class="legend-dot" style="background:var(--bg-gray-100); border-style:dashed;"></span> Onaylı İzinli</span>
+                <span class="legend-item"><span class="legend-dot" style="border-bottom:3px solid var(--mustard);"></span> Tam Gün Ders / Çakışma</span>
+              </div>
+
+              <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+          </div>
+
+          <!-- 1C. Öğrenci: Dinamik QR & Yoklama -->
+          <div class="sub-view" id="view-student-qr" style="display:none;">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Dinamik QR Devam Ekranı</div>
+                    <div class="card-subtitle">Giriş ve çıkış saatlerinizi kaydedin</div>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge badge-mustard" id="qrCountdownBadge">30 sn</span>
+                    <button class="btn btn-secondary btn-sm" id="btnRefreshQr">QR Yenile</button>
+                  </div>
+                </div>
+
+                <div class="qr-container">
+                  <div class="qr-box" id="qrSvgContainer"></div>
+                  <div style="flex:1;">
+                    <div style="font-weight:700; font-size:14px; margin-bottom:4px;" id="qrTokenText">ISKUR-QR-2026</div>
+                    <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
+                      Kod her 30 saniyede bir otomatik olarak yenilenir.
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <button class="btn btn-sm" id="btnQrCheckIn">Giriş Saatini Kaydet</button>
+                      <button class="btn btn-outline-mustard btn-sm" id="btnQrCheckOut">Çıkış Saatini Kaydet</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Giriş - Çıkış Yoklama Kayıtları</div>
+                    <div class="card-subtitle">Çalışılan ve izinli günlerin saat dökümü</div>
+                  </div>
+                  <span class="badge" id="studentAttCountBadge">0 Kayıt</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th class="sortable" onclick="sortTableData('studentAtt', 'work_date')">Tarih <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentAtt', 'check_in')">Giriş <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentAtt', 'check_out')">Çıkış <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentAtt', 'attendance_status')">Durum <span class="sort-indicator">↕</span></th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentAttendanceTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1D. Öğrenci: Mazeret Talebi Oluşturma & Takip -->
+          <div class="sub-view" id="view-student-excuses" style="display:none;">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Mazeret Talebi Oluştur</div>
+                    <div class="card-subtitle">Fakülte sekreteri ve danışmana iletilir</div>
+                  </div>
+                </div>
+                <div class="card-inner-white">
+                  <form id="excuseForm" class="form-grid">
+                    <div class="field">
+                      <label>Ad Soyad</label>
+                      <input type="text" id="excuseStudentName" readonly />
+                    </div>
+                    <div class="field">
+                      <label>Çalışılan Birim</label>
+                      <input type="text" id="excuseUnitName" required />
+                    </div>
+                    <div class="field">
+                      <label>Mazeret Tarihi</label>
+                      <input type="date" id="excuseDate" required />
+                    </div>
+                    <div class="field">
+                      <label>Mazeret Açıklaması</label>
+                      <textarea id="excuseReason" rows="3" placeholder="Çalışamama nedeninizi kısaca açıklayın..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Mazeret Talebini Gönder</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Gönderilen Mazeret Taleplerim</div>
+                    <div class="card-subtitle">Onay ve red durumu geçmişi</div>
+                  </div>
+                  <span class="badge" id="studentExcusesCountBadge">0 Talep</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th class="sortable" onclick="sortTableData('studentExcuses', 'excuse_date')">Tarih <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentExcuses', 'unit_name')">Birim <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentExcuses', 'reason')">Açıklama <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('studentExcuses', 'status')">Durum <span class="sort-indicator">↕</span></th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentExcusesHistoryTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1E. Öğrenci: Atanan Görevlerim -->
+          <div class="sub-view" id="view-student-tasks" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Danışman Tarafından Atanan Görevlerim</div>
+                  <div class="card-subtitle">Atanan görevleri görüntüleyin ve tamamlayın</div>
+                </div>
+                <span class="badge badge-mustard" id="studentTasksCountBadge">0 Görev</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('studentTasks', 'title')">Görev Tanımı <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('studentTasks', 'advisor_name')">Danışman <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('studentTasks', 'due_date')">Son Tarih <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('studentTasks', 'status')">Durum <span class="sort-indicator">↕</span></th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentTasksTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             2. DANIŞMAN ÖĞRETMEN ROLÜ EKRANLARI
+             ================================================================= -->
+        <section class="role-panel" id="panel-advisor">
+          <!-- 2A. Danışman: O Gün Çalışan Öğrenciler -->
+          <div class="sub-view" id="view-advisor-workers">
+            <div class="stats-container-box">
+              <div class="stats-grid">
+                <div class="stat-card highlight">
+                  <div class="stat-label">Seçili Gün Çalışan Öğrenci</div>
+                  <div class="stat-value" id="advStatTodayWorkers">0 Öğrenci</div>
+                  <div class="stat-sub">Günlük çalışma listesi</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Mesai Yapanlar</div>
+                  <div class="stat-value" id="advStatCheckedIn">0 Öğrenci</div>
+                  <div class="stat-sub">Giriş kaydı bulunanlar</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Bekleyen Görevler</div>
+                  <div class="stat-value" id="advStatPendingTasks">0 Görev</div>
+                  <div class="stat-sub">Devam eden işler</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Tamamlanan Görevler</div>
+                  <div class="stat-value" id="advStatCompletedTasks">0 Görev</div>
+                  <div class="stat-sub">Tamamlanan işler</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Günlük Çalışan Öğrenciler Listesi</div>
+                  <div class="card-subtitle">Seçili tarihte çalışan öğrencileri görüntüleyin</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input type="date" id="advisorDateInput" />
+                  <button class="btn btn-secondary btn-sm" id="btnAdvisorFilterDate">Listele</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('advisorWorkers', 'student_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('advisorWorkers', 'unit_name')">Birim <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('advisorWorkers', 'check_in')">Giriş / Çıkış <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('advisorWorkers', 'attendance_status')">Durum <span class="sort-indicator">↕</span></th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="advisorWorkersTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2B. Danışman: Öğrenciye Görev Tanımlama ve Görev Listesi -->
+          <div class="sub-view" id="view-advisor-tasks" style="display:none;">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Öğrenciye Görev / İş Tanımla</div>
+                    <div class="card-subtitle">Sorumlu olduğunuz öğrencilere yeni görev atayın</div>
+                  </div>
+                </div>
+                <div class="card-inner-white">
+                  <form id="advisorTaskForm" class="form-grid">
+                    <div class="field">
+                      <label>Danışman Öğretmen</label>
+                      <select id="taskAdvisorSelect"></select>
+                    </div>
+                    <div class="field">
+                      <label>Öğrenci Seçin</label>
+                      <select id="taskStudentSelect" required></select>
+                    </div>
+                    <div class="field">
+                      <label>Görev / İş Tanımı</label>
+                      <input type="text" id="taskTitleInput" placeholder="Örn: Laboratuvar bilgisayarlarının kontrolü" required />
+                    </div>
+                    <div class="field">
+                      <label>Teslim Tarihi</label>
+                      <input type="date" id="taskDueDateInput" required />
+                    </div>
+                    <button type="submit" class="btn">Görevi Ata</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Tanımlanan Görev Listesi</div>
+                    <div class="card-subtitle">Atanan görevlerin tamamlanma durumu</div>
+                  </div>
+                  <select id="advisorTaskStatusFilter" style="padding:6px 10px; font-size:12px;">
+                    <option value="all">Tüm Görevler</option>
+                    <option value="pending">Bekleyenler</option>
+                    <option value="completed">Tamamlananlar</option>
+                  </select>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th class="sortable" onclick="sortTableData('advisorTasks', 'student_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('advisorTasks', 'title')">Görev Tanımı <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('advisorTasks', 'due_date')">Son Tarih <span class="sort-indicator">↕</span></th>
+                        <th class="sortable" onclick="sortTableData('advisorTasks', 'status')">Durum <span class="sort-indicator">↕</span></th>
+                        <th>İşlem</th>
+                      </tr>
+                    </thead>
+                    <tbody id="advisorAllTasksTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             3. BÖLÜM BAŞKANI ROLÜ EKRANLARI
+             ================================================================= -->
+        <section class="role-panel" id="panel-head">
+          <!-- 3A. Bölüm Başkanı: Danışman Ataması -->
+          <div class="sub-view" id="view-head-assign">
+            <div class="stats-container-box">
+              <div class="stats-grid">
+                <div class="stat-card highlight">
+                  <div class="stat-label">Toplam Öğrenci</div>
+                  <div class="stat-value" id="headStatTotalStudents">0</div>
+                  <div class="stat-sub">Listelenen öğrenci sayısı</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Danışmanı Atanmış</div>
+                  <div class="stat-value" id="headStatAssigned">0</div>
+                  <div class="stat-sub">Eşleşmesi tamamlanan</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Atama Bekleyen</div>
+                  <div class="stat-value" id="headStatUnassigned">0</div>
+                  <div class="stat-sub">Danışmanı bulunmayan</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Yayınlanan Duyuru</div>
+                  <div class="stat-value" id="headStatAnnouncements">0</div>
+                  <div class="stat-sub">Aktif bildirim sayısı</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Öğrenci Danışman Ataması</div>
+                  <div class="card-subtitle">Öğrencilere danışman öğretmen atayın veya güncelleyin</div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('headStudents', 'full_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('headStudents', 'department_name')">Bölüm / Birim <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('headStudents', 'advisor_name')">Mevcut Danışman <span class="sort-indicator">↕</span></th>
+                      <th>Danışman Atama İşlemi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="headAdvisorAssignTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3B. Bölüm Başkanı: Genel Duyuru Yayınlama -->
+          <div class="sub-view" id="view-head-announcements" style="display:none;">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Genel Duyuru / Bildirim Yayınla</div>
+                    <div class="card-subtitle">Fakültede çalışan tüm öğrencilere bildirim gönderin</div>
+                  </div>
+                </div>
+                <div class="card-inner-white">
+                  <form id="headAnnouncementForm" class="form-grid">
+                    <div class="field">
+                      <label>Hedef Bölüm</label>
+                      <select id="annDeptSelect">
+                        <option value="all">Tüm Fakülte Öğrencileri</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label>Duyuru Başlığı</label>
+                      <input type="text" id="annTitleInput" placeholder="Örn: Ekim Ayı Puantaj Teslimi" required />
+                    </div>
+                    <div class="field">
+                      <label>Duyuru Metni</label>
+                      <textarea id="annContentInput" rows="4" placeholder="Öğrencilere iletilecek duyuru içeriği..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Duyuruyu Yayınla</button>
+                  </form>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Yayınlanan Duyurular</div>
+                    <div class="card-subtitle">Sistemdeki aktif duyuru listesi</div>
+                  </div>
+                </div>
+                <div id="announcementsList" style="display:grid; gap:10px;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             4. FAKÜLTE SEKRETERİ ROLÜ EKRANLARI (İŞKUR YÖNETİM MERKEZİ)
+             ================================================================= -->
+        <section class="role-panel" id="panel-secretary">
+          <!-- 4A. Fakülte Sekreteri: Öğrenci Yönetim ve Maaş Puantaj Tablosu -->
+          <div class="sub-view" id="view-secretary-payroll">
+            <div class="stats-container-box">
+              <div class="stats-grid">
+                <div class="stat-card highlight">
+                  <div class="stat-label">Toplam Çalışan Öğrenci</div>
+                  <div class="stat-value" id="secStatTotalStudents">0</div>
+                  <div class="stat-sub">Filtrelenen öğrenci sayısı</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Bekleyen Mazeret Talebi</div>
+                  <div class="stat-value" id="secStatPendingExcuses">0</div>
+                  <div class="stat-sub">Onay bekleyen talepler</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Aylık Toplam Maaş</div>
+                  <div class="stat-value" id="secStatTotalPayroll">0,00 ₺</div>
+                  <div class="stat-sub">Çalışılan gün bazlı tutar</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Toplam Kullanılan İzin</div>
+                  <div class="stat-value" id="secStatTotalLeaves">0 Gün</div>
+                  <div class="stat-sub">Öğrenci bazlı onaylı izinler</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Çalışan Öğrenci, Devamlılık ve Maaş Tablosu</div>
+                  <div class="card-subtitle">Öğrenci bilgileri, birimi, danışmanı, aylık çalışma günü, devamlılığı, izinleri ve maaş miktarı</div>
+                </div>
+                <span class="badge badge-mustard" id="secTableStudentCount">0 Öğrenci</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'full_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'department_name')">Bölüm <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'unit_name')">Birim <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'advisor_name')">Danışman <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'worked_days_count')">Aylık Gün <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'attendance_rate')">Devamlılık <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'total_leave_days')">İzin Günü <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryStudents', 'calculated_salary')">Maaş Miktarı <span class="sort-indicator">↕</span></th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="secretaryStudentsTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4B. Fakülte Sekreteri: Mazeret Taleplerini Onaylama veya Reddetme -->
+          <div class="sub-view" id="view-secretary-excuses" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Öğrenci Mazeret Talepleri</div>
+                  <div class="card-subtitle">Gelen mazeret taleplerini onaylayın veya reddedin</div>
+                </div>
+                <select id="secExcuseStatusFilter" style="padding:6px 10px; font-size:12px;">
+                  <option value="all">Tüm Talepler</option>
+                  <option value="pending">Bekleyenler</option>
+                  <option value="approved">Onaylananlar</option>
+                  <option value="rejected">Reddedilenler</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'student_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'unit_name')">Birim <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'advisor_name')">Danışman <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'excuse_date')">Tarih <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'reason')">Açıklama <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('secretaryExcuses', 'status')">Durum <span class="sort-indicator">↕</span></th>
+                      <th>Karar</th>
+                    </tr>
+                  </thead>
+                  <tbody id="secretaryExcusesTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =================================================================
+             5. DEKAN ROLÜ EKRANLARI
+             ================================================================= -->
+        <section class="role-panel" id="panel-dean">
+          <!-- 5A. Dekan: İŞKUR Ödenek Planlaması ve Öğrenci İstatistikleri -->
+          <div class="sub-view" id="view-dean-budget">
+            <div class="stats-container-box">
+              <div class="stats-grid">
+                <div class="stat-card highlight">
+                  <div class="stat-label">Fakülte Toplam İŞKUR Ödeneği</div>
+                  <div class="stat-value" id="deanStatTotalBudget">0,00 ₺</div>
+                  <div class="stat-sub">Bölümlere tahsis edilen bütçe</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Kullanılan Ödenek (Seçili Ay)</div>
+                  <div class="stat-value" id="deanStatUsedBudget">0,00 ₺</div>
+                  <div class="stat-sub">Aktif puantaj harcaması</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">Toplam Öğrenci Sayısı</div>
+                  <div class="stat-value" id="deanStatStudents">0 Öğrenci</div>
+                  <div class="stat-sub" id="deanStatActiveSub">Fakülte geneli kayıtlı öğrenci</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">10 Gün Sınırını Aşanlar</div>
+                  <div class="stat-value" id="deanStatLimitExceeded">0 Öğrenci</div>
+                  <div class="stat-sub">Yasal izin sınırı takibi</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Bölüm Bazlı İŞKUR Ödenek Planlaması</div>
+                  <div class="card-subtitle">Bölüm ödenek tahsislerini, harcanan ve kalan bütçeleri görüntüleyin</div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('deanBudget', 'name')">Bölüm Adı <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanBudget', 'student_count')">Öğrenci Sayısı <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanBudget', 'used_budget')">Harcanan <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanBudget', 'remaining_budget')">Kalan Ödenek <span class="sort-indicator">↕</span></th>
+                      <th>Tahsis Edilen Ödenek (₺)</th>
+                      <th>İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="deanBudgetTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5B. Dekan: 10 Günlük Yasal İzin Sınırı ve İlişik Kesme Takibi -->
+          <div class="sub-view" id="view-dean-leaves" style="display:none;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">10 Günlük Yasal İzin Sınırı Takibi</div>
+                  <div class="card-subtitle">10 günlük yasal izin sınırını aşan öğrencilerin İŞKUR ilişiğinin kesilmesi kuralı</div>
+                </div>
+                <select id="deanLeaveFilterSelect" style="padding:6px 10px; font-size:12px;">
+                  <option value="all">Tüm Öğrenciler</option>
+                  <option value="exceeded">10 Gün Sınırını Aşanlar</option>
+                  <option value="terminated">İlişiği Kesilenler</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="sortable" onclick="sortTableData('deanLeaves', 'full_name')">Öğrenci <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanLeaves', 'department_name')">Bölüm <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanLeaves', 'total_leave_days')">Toplam İzin <span class="sort-indicator">↕</span></th>
+                      <th class="sortable" onclick="sortTableData('deanLeaves', 'status')">Durum <span class="sort-indicator">↕</span></th>
+                      <th>Yasal İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody id="deanLeaveLimitTable"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div><!-- /.main-column -->
+  </div><!-- /#appShell -->
+
+  <!-- MODAL 1: Yeni Öğrenci Kaydı Ekle -->
+  <div class="modal-backdrop" id="modalAddStudent">
+    <div class="modal">
+      <div class="card-header">
+        <div class="card-title">Yeni Öğrenci Kaydı Oluştur</div>
+        <button class="btn btn-secondary btn-sm" id="btnCloseAddModal">✕ Kapat</button>
+      </div>
+      <form id="addStudentForm" class="form-grid">
+        <div class="field">
+          <label>Ad Soyad</label>
+          <input type="text" id="newStName" placeholder="Örn: Burak Yılmaz" required />
+        </div>
+        <div class="field">
+          <label>Öğrenci Numarası</label>
+          <input type="text" id="newStNo" placeholder="Örn: 20231099" required />
+        </div>
+        <div class="field">
+          <label>Bölüm</label>
+          <select id="newStDept" required></select>
+        </div>
+        <div class="field">
+          <label>Çalışacağı Birim</label>
+          <input type="text" id="newStUnit" placeholder="Örn: Bilgi İşlem Laboratuvarı" required />
+        </div>
+        <div class="field">
+          <label>Danışman Öğretmen</label>
+          <select id="newStAdvisor"></select>
+        </div>
+        <div class="field">
+          <label>Günlük Ücret (₺)</label>
+          <input type="number" step="0.01" id="newStWage" value="666.75" required />
+        </div>
+        <button type="submit" class="btn">Kaydı Oluştur</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Öğrenci Kaydı Güncelle -->
+  <div class="modal-backdrop" id="modalEditStudent">
+    <div class="modal">
+      <div class="card-header">
+        <div class="card-title">Öğrenci Bilgilerini Güncelle</div>
+        <button class="btn btn-secondary btn-sm" id="btnCloseEditModal">✕ Kapat</button>
+      </div>
+      <form id="editStudentForm" class="form-grid">
+        <input type="hidden" id="editStId" />
+        <div class="field">
+          <label>Ad Soyad</label>
+          <input type="text" id="editStName" required />
+        </div>
+        <div class="field">
+          <label>Bölüm</label>
+          <select id="editStDept" required></select>
+        </div>
+        <div class="field">
+          <label>Çalıştığı Birim</label>
+          <input type="text" id="editStUnit" required />
+        </div>
+        <div class="field">
+          <label>Danışman Öğretmen</label>
+          <select id="editStAdvisor"></select>
+        </div>
+        <div class="field">
+          <label>Günlük Ücret (₺)</label>
+          <input type="number" step="0.01" id="editStWage" required />
+        </div>
+        <div class="field">
+          <label>Çalışma Durumu</label>
+          <select id="editStStatus">
+            <option value="active">Aktif Çalışan</option>
+            <option value="terminated">İlişiği Kesildi</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">Değişiklikleri Kaydet</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bildirim Kutusu -->
+  <div class="toast" id="toastBox"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
